@@ -31,11 +31,17 @@ function postOnTitle(error, title) {
     var introTable = probable.createRangeTableFromDict({
       'I\'m the': 35,
       'I\'m like the': 10,
-      The: 35,
       'It\'s the': 20,
-      'UNH': 10,
-      'I\' m a': 15
+      'Here I am, the': 10,
+      'I\'m a': 15
     });
+
+    var prefixExclamationTable = probable.createRangeTableFromDict({
+      'UNH!': 10,
+      'Blaow!': 10,
+      'BOOM!': 10
+    });
+
     var prefixTable = probable.createRangeTableFromDict({
       rap: 50,
       'rap game': 30
@@ -48,17 +54,26 @@ function postOnTitle(error, title) {
     });
 
     var configRoll = probable.roll(5);
+
     var usePrefix = true;
     var useSuffix = false;
     var useIntro = true;
+    var usePrefixExclamation = false;
 
     if (configRoll > 2) {
       usePrefix = false;
       useSuffix = true;
     }
 
+    if (configRoll > 3) {
+      usePrefixExclamation = true;
+    }
+
     var text = '';
 
+    if (usePrefixExclamation) {
+      text += (prefixExclamationTable.roll() + ' ');
+    }
     if (useIntro) {
       text += (introTable.roll() + ' ');
     }
