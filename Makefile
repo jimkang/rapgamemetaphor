@@ -6,3 +6,6 @@
 
 build-server: npm-install
 	echo "Server built."
+
+npm-install:
+	npm install
