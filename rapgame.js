@@ -17,7 +17,9 @@ logger.log('rapgame is running.');
 
 function postTitle() {
   wordnikSource.getTopic(postOnTitle);
-  // postOnTitle(null, 'sausage');
+  // for (var i = 0; i < 100; ++i) {
+  //   postOnTitle(null, 'sausage');
+  // }
 }
 
 function postOnTitle(error, title) {
@@ -48,6 +50,7 @@ function postOnTitle(error, title) {
     });
     var suffixTable = probable.createRangeTableFromDict({
       'of rap': 50,
+      'of rap! There is none higher': 7,
       'of the rap game': 15,
       'of the whole rap game': 8,
       'of this rap shit': 10
