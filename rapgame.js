@@ -1,25 +1,21 @@
 var Bot = require('./node_modules/twit/examples/bot');
 var config = require('./config');
-var createWordnikSource = require('./wordniksource');
-var logger = require('./logger');
+var createWordnok = require('wordnok').createWordnok;
 var handleTwitterError = require('./handletwittererror');
-// TODO: Some non-file-locking  implementation of recordkeeper.
-var behavior = require('./behaviorsettings');
 var probable = require('probable');
-var canonicalizer = require('./canonicalizer');
+var canonicalizer = require('canonicalizer');
 
-var wordnikSource = createWordnikSource();
+var wordnikSource = createWordnok({
+  apiKey: config.wordnikAPIKey
+});
 var bot = new Bot(config.twitter);
 
 var simulationMode = (process.argv[2] === '--simulate');
 
-logger.log('rapgame is running.');
+console.log('rapgame is running.');
 
 function postTitle() {
   wordnikSource.getTopic(postOnTitle);
-  // for (var i = 0; i < 100; ++i) {
-  //   postOnTitle(null, 'sausage');
-  // }
 }
 
 function postOnTitle(error, title) {
@@ -94,15 +90,14 @@ function postOnTitle(error, title) {
     text = capitalizeFirst(text);
 
     if (simulationMode) {
-      logger.log('Would have tweeted:', text);
+      console.log('Would have tweeted:', text);
     }
     else {
       bot.tweet(text, function reportTweetResult(error, reply) {
-        logger.log((new Date()).toString(), 'Tweet posted', reply.text);
+        console.log((new Date()).toString(), 'Tweet posted', reply.text);
 
       });
     }
-    
   }
 }
 

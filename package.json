@@ -20,13 +20,15 @@
   "author": "Jim Kang",
   "license": "ISC",
   "dependencies": {
+    "canonicalizer": "^1.0.1",
     "inflection": "^1.5.2",
     "lodash": "~2.4.1",
     "probable": "~0.1.0",
     "queue-async": "~1.0.7",
     "request": "~2.36.0",
     "twit": "~1.1.14",
-    "wordfilter": "~0.1.6"
+    "wordfilter": "~0.1.6",
+    "wordnok": "jimkang/wordnok#no-cache"
   },
   "devDependencies": {
     "mocha": "~1.20.1"
