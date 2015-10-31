@@ -22,16 +22,15 @@ var opts = {
 
 getRhymeLine(opts, reportAllWords);
 
-function reportAllWords(error, words) {
+function reportAllWords(error, path) {
   if (error) {
     console.log(error, error.stack);
   }
-  else if (!words) {
+  else if (!path) {
     console.log('No rhymes found.');
   }
   else {
-    var cleanedUpWords = _.flatten(_.compact(words));
     console.log('Words that match rhyme sequences:');
-    console.log(JSON.stringify(cleanedUpWords, null, '  '));
+    console.log(JSON.stringify(path, null, '  '));
   }
 }
