@@ -1,11 +1,24 @@
-# test:
-# 	node_modules/mocha/bin/mocha -R spec tests/attackmaker-tests.js
+run:
+	node rapgame.js
 
-# debug-test:
-# 	node_modules/mocha/bin/mocha debug -R spec tests/attackmaker-tests.js
+stop-docker-machine:
+	docker-machine stop dev
 
-build-server: npm-install
-	echo "Server built."
+start-docker-machine:
+	docker-machine start dev
 
-npm-install:
-	npm install
+create-docker-machine:
+	docker-machine create --driver virtualbox dev
+
+connect-to-docker-machine:
+	eval "$(docker-machine env dev)"
+
+build-docker-image:
+	docker build -t jkang/rapgamemetaphor .
+
+push-docker-image:
+	docker push jkang/rapgamemetaphor
+
+run-docker-image:
+	docker run -v $(HOMEDIR)/config:/usr/src/app/config \
+		jkang/rapgamemetaphor make run
