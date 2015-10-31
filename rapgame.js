@@ -1,9 +1,10 @@
 var Bot = require('./node_modules/twit/examples/bot');
-var config = require('./config');
+var config = require('./config/config');
 var createWordnok = require('wordnok').createWordnok;
 var handleTwitterError = require('./handletwittererror');
 var probable = require('probable');
 var canonicalizer = require('canonicalizer');
+var getRhymeLine = require('./get-rhyme-line');
 
 var wordnikSource = createWordnok({
   apiKey: config.wordnikAPIKey
@@ -14,17 +15,17 @@ var simulationMode = (process.argv[2] === '--simulate');
 
 console.log('rapgame is running.');
 
-function postTitle() {
-  wordnikSource.getTopic(postOnTitle);
+function postRapMetaphor() {
+  wordnikSource.getTopic(postWithWord);
 }
 
-function postOnTitle(error, title) {
+function postWithWord(error, word) {
   if (error) {
     handleTwitterError(error);
   }
   else {
-    var forms = canonicalizer.getSingularAndPluralForms(title);
-    title = forms[0];
+    var forms = canonicalizer.getSingularAndPluralForms(word);
+    word = forms[0];
 
     var introTable = probable.createRangeTableFromDict({
       'I\'m the': 35,
@@ -69,6 +70,7 @@ function postOnTitle(error, title) {
     }
 
     var text = '';
+    var lastWord;
 
     if (usePrefixExclamation) {
       text += (prefixExclamationTable.roll() + ' ');
@@ -80,23 +82,44 @@ function postOnTitle(error, title) {
       text += (prefixTable.roll() + ' ');
     }
     
-    text += title;
+    text += word;
+    lastWord = word;
 
     if (useSuffix) {
-      text += (' ' + suffixTable.roll());
+      var suffix = suffixTable.roll();
+      text += (' ' + suffix);
+      lastWord = getLastWord(suffix);
     }
 
     text += '!';
     text = capitalizeFirst(text);
 
-    if (simulationMode) {
-      console.log('Would have tweeted:', text);
-    }
-    else {
-      bot.tweet(text, function reportTweetResult(error, reply) {
-        console.log((new Date()).toString(), 'Tweet posted', reply.text);
+    var getRhymeOpts = {
+      endWord: lastWord,
+      topic: word,
+      random: Math.random,
+      strict: false
+    };
 
-      });
+    getRhymeLine(getRhymeOpts, addRhymeLine);
+
+    function addRhymeLine(error, rhymePath) {
+      if (error) {
+        console.log(error);
+      }
+      else if (rhymePath && rhymePath.length > 0) {
+        text += '\n' + rhymePathToSentence(rhymePath);
+      }
+
+      if (simulationMode) {
+        console.log('Would have tweeted:', text);
+      }
+      else {
+        bot.tweet(text, function reportTweetResult(error, reply) {
+          console.log((new Date()).toString(), 'Tweet posted', reply.text);
+
+        });
+      }
     }
   }
 }
@@ -105,4 +128,13 @@ function capitalizeFirst(str) {
     return str.slice(0, 1).toUpperCase() + str.slice(1);
 }
 
-postTitle();
+function getLastWord(sentence) {
+  var words = sentence.split(' ');
+  return words[words.length - 1];
+}
+
+function rhymePathToSentence(path) {
+  return capitalizeFirst(path.join(' ').toLowerCase());
+}
+
+postRapMetaphor();

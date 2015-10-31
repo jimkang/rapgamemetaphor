@@ -1,3 +1,5 @@
+HOMEDIR = $(shell pwd)
+
 run:
 	node rapgame.js
 
