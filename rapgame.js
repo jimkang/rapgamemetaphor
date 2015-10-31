@@ -108,7 +108,13 @@ function postWithWord(error, word) {
         console.log(error);
       }
       else if (rhymePath && rhymePath.length > 0) {
-        text += '\n' + rhymePathToSentence(rhymePath);
+        var rhymeSentence = rhymePathToSentence(rhymePath);
+        if (probable.roll(2) === 0) {
+          text += '\n' + rhymeSentence;
+        }
+        else {
+          text = rhymeSentence + '\n' + text;
+        }
       }
 
       if (simulationMode) {

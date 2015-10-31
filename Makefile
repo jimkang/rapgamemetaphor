@@ -18,9 +18,12 @@ connect-to-docker-machine:
 build-docker-image:
 	docker build -t jkang/rapgamemetaphor .
 
-push-docker-image:
+push-docker-image: build-docker-image
 	docker push jkang/rapgamemetaphor
 
 run-docker-image:
 	docker run -v $(HOMEDIR)/config:/usr/src/app/config \
 		jkang/rapgamemetaphor make run
+
+pushall: push-docker-image
+	git push origin master
