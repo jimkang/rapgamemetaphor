@@ -6,7 +6,7 @@ var WanderGoogleNgrams = require('wander-google-ngrams');
 var async = require('async');
 var createProbable = require('probable').createProbable;
 
-var wander = WanderGoogleNgrams();
+var createWanderStream = WanderGoogleNgrams();
 
 function getRhymeLine(opts, getDone) {
   var endWord;
@@ -30,7 +30,7 @@ function getRhymeLine(opts, getDone) {
     [
       callCreateRime,
       getRhymesWithRime,
-      wanderUpSentence      
+      wanderUpSentence
     ],
     getDone
   );
@@ -55,9 +55,6 @@ function getRhymeLine(opts, getDone) {
       return;
     }
 
-    // console.log('Last syllable rhyme phoneme sequences:');
-    // console.log(JSON.stringify(rhymes, null, '  '));
-
     var q = queue(1);
     rhymes.forEach(queueGetWords);
     q.awaitAll(done);
@@ -74,12 +71,29 @@ function getRhymeLine(opts, getDone) {
     }
 
     var cleanedUpWords = _.flatten(_.compact(words));
+    var sentenceWords = [];
 
     var opts = {
       word: probable.pickFromArray(cleanedUpWords),
-      direction: 'backward'
+      direction: 'backward',
+      repeatLimit: 1,
+      tryReducingNgramSizeAtDeadEnds: true,
+      shootForASentence: true,
+      maxWordCount: 12
     };
-    wander(opts, done);
+
+    var stream = createWanderStream(opts);
+    stream.on('end', passBackSentenceWords);
+    stream.on('error', done);
+    stream.on('data', saveWord);
+
+    function saveWord(word) {
+      sentenceWords.unshift(word);
+    }
+
+    function passBackSentenceWords() {
+      done(null, sentenceWords);
+    }
   }
 }
 
