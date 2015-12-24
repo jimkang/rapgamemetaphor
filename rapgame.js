@@ -5,6 +5,8 @@ var handleTwitterError = require('./handletwittererror');
 var probable = require('probable');
 var canonicalizer = require('canonicalizer');
 var getRhymeLine = require('./get-rhyme-line');
+var callNextTick = require('call-next-tick');
+var ngramChainToSentence = require('ngram-chain-to-sentence');
 
 var wordnikSource = createWordnok({
   apiKey: config.wordnikAPIKey
@@ -101,14 +103,16 @@ function postWithWord(error, word) {
       strict: false
     };
 
+    var rhymeRetries = 0;
+
     getRhymeLine(getRhymeOpts, addRhymeLine);
 
     function addRhymeLine(error, rhymePath) {
       if (error) {
         console.log(error);
       }
-      else if (rhymePath && rhymePath.length > 0) {
-        var rhymeSentence = rhymePathToSentence(rhymePath);
+      else if (rhymePath && rhymePath.length > 1) {
+        var rhymeSentence = ngramChainToSentence(rhymePath);
         if (probable.roll(2) === 0) {
           text += '\n' + rhymeSentence;
         }
@@ -116,22 +120,29 @@ function postWithWord(error, word) {
           text = rhymeSentence + '\n' + text;
         }
       }
+      else if (rhymeRetries < 5) {
+        // Retry.
+        rhymeRetries += 1;
+        callNextTick(getRhymeLine, getRhymeOpts, addRhymeLine);
+        return;
+      }
+      else {
+        console.log('Retried', rhymeRetries, 'times with no luck.');
+        return;
+      }
 
       if (simulationMode) {
         console.log('Would have tweeted:', text);
       }
       else {
-        bot.tweet(text, function reportTweetResult(error, reply) {
-          console.log((new Date()).toString(), 'Tweet posted', reply.text);
-
-        });
+        bot.tweet(text, reportTweetResult);
       }
     }
   }
 }
 
-function capitalizeFirst(str) {
-    return str.slice(0, 1).toUpperCase() + str.slice(1);
+function reportTweetResult(error, reply) {
+  console.log((new Date()).toString(), 'Tweet posted', reply.text);
 }
 
 function getLastWord(sentence) {
@@ -139,8 +150,8 @@ function getLastWord(sentence) {
   return words[words.length - 1];
 }
 
-function rhymePathToSentence(path) {
-  return capitalizeFirst(path.join(' ').toLowerCase());
+function capitalizeFirst(str) {
+    return str.slice(0, 1).toUpperCase() + str.slice(1);
 }
 
 postRapMetaphor();

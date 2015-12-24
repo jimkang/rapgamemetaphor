@@ -5,8 +5,11 @@ var callNextTick = require('call-next-tick');
 var WanderGoogleNgrams = require('wander-google-ngrams');
 var async = require('async');
 var createProbable = require('probable').createProbable;
+var config = require('./config/config');
 
-var createWanderStream = WanderGoogleNgrams();
+var createWanderStream = WanderGoogleNgrams({
+  wordnikAPIKey: config.wordnikAPIKey
+});
 
 function getRhymeLine(opts, getDone) {
   var endWord;
@@ -74,7 +77,7 @@ function getRhymeLine(opts, getDone) {
     var sentenceWords = [];
 
     var opts = {
-      word: probable.pickFromArray(cleanedUpWords),
+      word: probable.pickFromArray(cleanedUpWords).toLowerCase(),
       direction: 'backward',
       repeatLimit: 1,
       tryReducingNgramSizeAtDeadEnds: true,
