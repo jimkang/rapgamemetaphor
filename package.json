@@ -31,7 +31,7 @@
     "rime": "^1.0.0",
     "seedrandom": "^2.4.2",
     "twit": "~1.1.14",
-    "wander-google-ngrams": "^2.2.1",
+    "wander-google-ngrams": "^2.2.3",
     "wordnok": "jimkang/wordnok#no-cache"
   },
   "devDependencies": {}

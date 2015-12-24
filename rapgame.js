@@ -110,6 +110,11 @@ function postWithWord(error, word) {
     function addRhymeLine(error, rhymePath) {
       if (error) {
         console.log(error);
+        if (error.message === 'Could not find rhymes.') {
+          rhymeRetries += 1;
+          callNextTick(getRhymeLine, getRhymeOpts, addRhymeLine);
+          return;
+        }
       }
       else if (rhymePath && rhymePath.length > 1) {
         var rhymeSentence = ngramChainToSentence(rhymePath);
