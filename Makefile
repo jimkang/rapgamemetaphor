@@ -25,5 +25,9 @@ run-docker-image:
 	docker run -v $(HOMEDIR)/config:/usr/src/app/config \
 		jkang/rapgamemetaphor make run
 
+run-docker-image-simulate:
+	docker run -v $(HOMEDIR)/config:/usr/src/app/config \
+		jkang/rapgamemetaphor node rapgame.js --simulate
+
 pushall: push-docker-image
 	git push origin master
