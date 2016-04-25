@@ -54,16 +54,29 @@ function getRhymeLine(opts, getDone) {
     });
 
     if (!rhymes) {
-      callNextTick(done, new Error('Could not find rhymes.'));
+      wrapUpRime(new Error('Could not find rhymes.'));
       return;
     }
 
     var q = queue(1);
     rhymes.forEach(queueGetWords);
-    q.awaitAll(done);
+    q.awaitAll(wrapUpRime);
 
     function queueGetWords(rhyme) {
       q.defer(rime.getWordsThatFitPhonemes, rhyme);
+    }
+
+    function wrapUpRime(error, rhymePath) {
+      rime.closeDb(passError);
+
+      function passError(closeError, error) {
+        if (closeError) {
+          done(closeError, rhymePath);
+        }
+        else {
+          done(error, rhymePath);
+        }
+      }
     }
   }
 

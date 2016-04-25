@@ -128,6 +128,7 @@ function postWithWord(error, word) {
       else if (rhymeRetries < 5) {
         // Retry.
         rhymeRetries += 1;
+        console.log('Retry ', rhymeRetries);
         callNextTick(getRhymeLine, getRhymeOpts, addRhymeLine);
         return;
       }
